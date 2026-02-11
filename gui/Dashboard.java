@@ -51,7 +51,7 @@ public class Dashboard extends JFrame {
 		int btnHeight = 55;
 		int startX = 250; 
 
-		// 1. Start Quiz Button
+		
 		JButton btnStartQuiz = new JButton("Start Quiz");
 		btnStartQuiz.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		btnStartQuiz.setBounds(startX, 140, btnWidth, btnHeight);
@@ -61,7 +61,7 @@ public class Dashboard extends JFrame {
 		});
 		contentPane.add(btnStartQuiz);
 
-		// 2. Leaderboard Button
+	
 		JButton btnLeaderboard = new JButton("Leaderboard");
 		btnLeaderboard.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		btnLeaderboard.setBounds(startX, 215, btnWidth, btnHeight);

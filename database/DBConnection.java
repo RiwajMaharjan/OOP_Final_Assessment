@@ -3,6 +3,7 @@ package database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 public class DBConnection {
 
@@ -12,8 +13,18 @@ public class DBConnection {
 
     /**
      * Returns a JDBC connection to the CompetitionDB database.
+     * Includes error handling to prevent application crashes.
      */
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    public static Connection getConnection() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "MySQL Driver not found!");
+            return null;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Could not connect to MySQL. Ensure XAMPP is running.");
+            return null;
+        }
     }
 }

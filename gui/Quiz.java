@@ -14,6 +14,12 @@ import javax.swing.JOptionPane;
 import backend.Manager;
 import backend.Questions;
 
+/**
+ * Handles the quiz interface, tracking rounds, questions, and scores.
+ * Communicates with the Manager class to save results to the database.
+ * * @author Riwaj Maharjan
+ * @version 1.0
+ */
 public class Quiz extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -34,6 +40,9 @@ public class Quiz extends JFrame {
 	private ButtonGroup optionsGroup = new ButtonGroup();
 	private JButton btnNext;
 
+	/**
+	 * Launches the Quiz window for testing purposes.
+	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
 			try {
@@ -45,7 +54,11 @@ public class Quiz extends JFrame {
 		});
 	}
 
+	/**
+	 * Default constructor for setting up the UI components.
+	 */
 	public Quiz() {
+		setTitle("Competition Quiz");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 600); 
 		contentPane = new JPanel();
@@ -100,6 +113,14 @@ public class Quiz extends JFrame {
 		setLocationRelativeTo(null);
 	}
 
+	/**
+	 * Constructor with player details. Loads level-specific questions.
+	 * * @param fName Player's first name
+	 * @param lName Player's last name
+	 * @param age   Player's age
+	 * @param level Difficulty level
+	 * @param id    Existing competitor ID (or 0)
+	 */
 	public Quiz(String fName, String lName, int age, String level, int id) {
 		this(); 
 		this.fName = fName;
@@ -107,21 +128,20 @@ public class Quiz extends JFrame {
 		this.playerAge = age;
 		this.playerId = id;
 
-		if (level != null && level.equalsIgnoreCase("Advanced")) {
-			this.playerLevel = "Advance";
-		} else {
-			this.playerLevel = level;
-		}
-		
+		this.playerLevel = (level != null && level.equalsIgnoreCase("Advanced")) ? "Advance" : level;
 		this.allQuizQuestions = Manager.getQuestionsByLevel(this.playerLevel);
 		
 		if (allQuizQuestions == null || allQuizQuestions.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "No questions found for level: " + playerLevel);
+			JOptionPane.showMessageDialog(this, "Critical Error: No questions loaded from database.");
+			return;
 		}
 		
 		displayCurrentQuestion();
 	}
 
+	/**
+	 * Updates the UI with the next question's text and options.
+	 */
 	private void displayCurrentQuestion() {
 		int overallIndex = (currentRound * 5) + currentQuestionInRound;
 		
@@ -138,9 +158,14 @@ public class Quiz extends JFrame {
 			rbOption4.setText(opts[3]);
 			
 			optionsGroup.clearSelection();
+		} else {
+			JOptionPane.showMessageDialog(this, "Error: Question data is missing.");
 		}
 	}
 
+	/**
+	 * Validates selection, updates scores, and advances the quiz state.
+	 */
 	private void handleAnswerSubmission() {
 		if (optionsGroup.getSelection() == null) {
 			JOptionPane.showMessageDialog(this, "Please select an answer!");
@@ -148,6 +173,13 @@ public class Quiz extends JFrame {
 		}
 
 		int overallIndex = (currentRound * 5) + currentQuestionInRound;
+		
+		// Error check for index safety
+		if (allQuizQuestions == null || overallIndex >= allQuizQuestions.size()) {
+			JOptionPane.showMessageDialog(this, "Session error: Could not retrieve question.");
+			return;
+		}
+
 		Questions q = allQuizQuestions.get(overallIndex);
 		String selectedText = "";
 
@@ -180,17 +212,25 @@ public class Quiz extends JFrame {
 		}
 	}
 
+	/**
+	 * Finalizes the quiz, saves scores via the Manager, and returns to Dashboard.
+	 */
 	private void processFinalResults() {
-		// Logic: Save data and capture if it's a new registration or an update
-		boolean isNew = Manager.saveOrUpdateCompetitor(fName, lName, playerAge, playerLevel, sessionScores);
-		
-		int grandTotal = 0;
-		for(int s : sessionScores) grandTotal += s;
-		
-		String message = isNew ? "New player registered successfully!" : "Welcome back! Your scores have been updated.";
-		
-		JOptionPane.showMessageDialog(this, "Quiz Complete!\n" + message + "\nTotal Correct: " + grandTotal + " / 25");
-		this.dispose();
-		new Dashboard().setVisible(true);
+		try {
+			boolean isNew = Manager.saveOrUpdateCompetitor(fName, lName, playerAge, playerLevel, sessionScores);
+			
+			int grandTotal = 0;
+			for(int s : sessionScores) grandTotal += s;
+			
+			String message = isNew ? "New player registered successfully!" : "Welcome back! Your scores have been updated.";
+			
+			JOptionPane.showMessageDialog(this, "Quiz Complete!\n" + message + "\nTotal Correct: " + grandTotal + " / 25");
+			this.dispose();
+			new Dashboard().setVisible(true);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Error saving results: " + e.getMessage());
+			new Dashboard().setVisible(true);
+			this.dispose();
+		}
 	}
 }

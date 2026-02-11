@@ -11,6 +11,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import backend.Manager;
 
+/**
+ * Provides a login and registration interface for competitors.
+ * Validates user input and checks for existing records in the database.
+ * * @author Riwaj Maharjan
+ * @version 1.0
+ */
 public class Login extends JFrame {
 
     private static final long serialVersionUID = 1L;
@@ -20,6 +26,10 @@ public class Login extends JFrame {
     private JTextField txtAge;
     private JComboBox<String> comboLevel;
 
+    /**
+     * Launches the Login application window.
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
@@ -31,6 +41,9 @@ public class Login extends JFrame {
         });
     }
 
+    /**
+     * Initializes the login frame and its UI components.
+     */
     public Login() {
         setTitle("Player Registration");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -90,6 +103,10 @@ public class Login extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Processes user input, validates fields, and initiates the quiz session.
+     * Checks for existing competitor IDs to distinguish new and returning players.
+     */
     private void startQuizProcess() {
         String fName = txtFirstName.getText().trim();
         String lName = txtLastName.getText().trim();
@@ -109,27 +126,30 @@ public class Login extends JFrame {
                 return;
             }
             
-            // 1. Refresh data to ensure we are searching the latest DB entries
+            // Refresh DB data and check for ID
             Manager.connectAndLoadData();
-
-            // 2. Search for existing ID by name
             int existingId = Manager.findCompetitorId(fName, lName);
             
             if (existingId > 0) {
-                // 3. SHOW THE WELCOME BACK MESSAGE WITH ID
                 JOptionPane.showMessageDialog(this, "Welcome back! ID: " + existingId);
             } else {
-                // Optional: Let them know they are new
                 JOptionPane.showMessageDialog(this, "New Player Identified! Registering now.");
             }
 
-            // 4. Pass the details to the Quiz
+            // Load questions for the selected level to verify content exists
+            if (Manager.getQuestionsByLevel(level).isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Error: No questions found for " + level + " level.");
+                return;
+            }
+
             Quiz quizFrame = new Quiz(fName, lName, age, level, existingId);
             quizFrame.setVisible(true);
             this.dispose();
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Age must be a number!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage());
         }
     }
 }
