@@ -14,12 +14,19 @@ public class Manager {
     private static CompetitorList masterList = new CompetitorList();
 
     /**
-     * Fetches all competitors from the database.
-     * @return ArrayList of Competitor objects.
+     * Fetches all competitors from the database and sorts them by score.
+     * @return ArrayList of Competitor objects in descending order of overall score.
      */
     public static ArrayList<Competitor> getAllCompetitors() {
         connectAndLoadData();
-        return masterList.getCompetitors();
+        ArrayList<Competitor> list = masterList.getCompetitors();
+        
+        // SORTING logic: Highest overall score at the top
+        if (list != null) {
+            list.sort((c1, c2) -> Double.compare(c2.getOverallScore(), c1.getOverallScore()));
+        }
+        
+        return list;
     }
 
     /**
