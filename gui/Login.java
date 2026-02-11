@@ -9,8 +9,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import backend.Manager;
 
 public class Login extends JFrame {
@@ -36,7 +34,7 @@ public class Login extends JFrame {
     public Login() {
         setTitle("Player Registration");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 450, 450); // Increased height slightly for layout
+        setBounds(100, 100, 450, 450);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -70,27 +68,19 @@ public class Login extends JFrame {
         lblLevel.setBounds(50, 190, 100, 25);
         contentPane.add(lblLevel);
 
-        comboLevel = new JComboBox<>();
-        comboLevel.addItem("Beginner");
-        comboLevel.addItem("Intermediate");
-        comboLevel.addItem("Advanced");
+        comboLevel = new JComboBox<>(new String[]{"Beginner", "Intermediate", "Advance"});
         comboLevel.setBounds(180, 190, 180, 25);
         contentPane.add(comboLevel);
 
         JButton btnStart = new JButton("Start Quiz");
-        btnStart.setBounds(240, 268, 120, 40);
+        btnStart.setBounds(240, 270, 120, 40);
         contentPane.add(btnStart);
 
-        // Added Back button for navigation
         JButton btnBack = new JButton("Back");
-        btnBack.setBounds(67, 270, 147, 37);
+        btnBack.setBounds(70, 270, 120, 40);
         contentPane.add(btnBack);
 
-        btnStart.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                startQuizProcess();
-            }
-        });
+        btnStart.addActionListener(e -> startQuizProcess());
 
         btnBack.addActionListener(e -> {
             new Dashboard().setVisible(true);
@@ -114,19 +104,28 @@ public class Login extends JFrame {
         try {
             int age = Integer.parseInt(ageStr);
             
-            // Check if player exists in DB using Manager
-            int existingId = Manager.findCompetitorId(fName, lName, age);
+            if (age <= 0 ) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid age.");
+                return;
+            }
+            
+            // 1. Refresh data to ensure we are searching the latest DB entries
+            Manager.connectAndLoadData();
+
+            // 2. Search for existing ID by name
+            int existingId = Manager.findCompetitorId(fName, lName);
             
             if (existingId > 0) {
+                // 3. SHOW THE WELCOME BACK MESSAGE WITH ID
                 JOptionPane.showMessageDialog(this, "Welcome back! ID: " + existingId);
             } else {
-                JOptionPane.showMessageDialog(this, "New Player Registered!");
+                // Optional: Let them know they are new
+                JOptionPane.showMessageDialog(this, "New Player Identified! Registering now.");
             }
 
-            // Pointing to the Quiz class and passing required data
+            // 4. Pass the details to the Quiz
             Quiz quizFrame = new Quiz(fName, lName, age, level, existingId);
             quizFrame.setVisible(true);
-            
             this.dispose();
 
         } catch (NumberFormatException ex) {

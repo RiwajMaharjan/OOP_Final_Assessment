@@ -3,50 +3,53 @@ package backend;
 import java.util.ArrayList;
 
 /**
- * CompetitorList Class
- * Manages a collection of Competitor objects and provides utility methods
- * for searching, retrieving top performers, and generating summary data.
- * * @author YourName
- * @version 1.0
+ * Manages the collection of Competitor objects.
+ * This class fulfills the Part Three requirement for a specialized list manager.
  */
 public class CompetitorList {
-    
-    /** Collection of all competitors loaded from the database */
     private ArrayList<Competitor> competitors;
 
     /**
-     * Constructs a new empty CompetitorList.
+     * Initializes a new empty list of competitors.
      */
     public CompetitorList() {
         this.competitors = new ArrayList<>();
     }
 
     /**
-     * Adds a Competitor object to the internal list.
-     * @param c The Competitor object to add.
+     * Adds a competitor to the master list.
+     * @param c The Competitor object to be added.
      */
     public void addCompetitor(Competitor c) {
-        if (c != null) {
-            competitors.add(c);
-        }
+        competitors.add(c);
     }
 
     /**
-     * Retrieves the full list of competitors.
-     * @return ArrayList of Competitor objects.
+     * Returns the full list of competitors.
+     * @return ArrayList of all Competitor objects.
      */
     public ArrayList<Competitor> getCompetitors() {
         return competitors;
     }
 
     /**
-     * Identifies the competitor with the highest overall weighted score.
-     * Fulfills the "Details of the top performer" requirement.
-     * @return The Competitor with the maximum score, or null if list is empty.
+     * Finds a competitor by their unique ID.
+     * @param id The ID to search for.
+     * @return The Competitor object if found, otherwise null.
+     */
+    public Competitor getCompetitorById(int id) {
+        for (Competitor c : competitors) {
+            if (c.getCompetitorId() == id) return c;
+        }
+        return null;
+    }
+
+    /**
+     * Finds the competitor with the highest overall score.
+     * @return The top-performing Competitor.
      */
     public Competitor getTopPerformer() {
         if (competitors.isEmpty()) return null;
-
         Competitor top = competitors.get(0);
         for (Competitor c : competitors) {
             if (c.getOverallScore() > top.getOverallScore()) {
@@ -54,21 +57,5 @@ public class CompetitorList {
             }
         }
         return top;
-    }
-
-    /**
-     * Searches for a competitor by ID and returns condensed details.
-     * Fulfills the user interaction requirement for ID searching.
-     * @param id The unique database ID to search for.
-     * @return A string containing initials and final score, or a not found message.
-     */
-    public String getShortDetails(int id) {
-        for (Competitor c : competitors) {
-            if (c.competitorId == id) {
-                return "ID " + id + ": " + c.getName().getInitials() + 
-                       " | Overall Score: " + String.format("%.2f", c.getOverallScore());
-            }
-        }
-        return "Competitor ID " + id + " not found.";
     }
 }

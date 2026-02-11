@@ -3,7 +3,6 @@ package gui;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Color;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,12 +16,16 @@ import javax.swing.border.LineBorder;
 import backend.Competitor;
 import backend.Manager;
 
+/**
+ * Provides a user interface to search for competitors by ID.
+ * Displays details in the exact format required by the coursework brief.
+ */
 public class PlayerDetails extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField txtSearchID;
-	private JLabel lblDisplay; // Replaced JTextArea with JLabel
+	private JLabel lblDisplay;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
@@ -38,11 +41,11 @@ public class PlayerDetails extends JFrame {
 	public PlayerDetails() {
 		setTitle("Competitor Lookup");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 500, 500); 
+		setBounds(100, 100, 500, 500);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(null); 
+		contentPane.setLayout(null);
 
 		JLabel lblHeader = new JLabel("Search Player by ID");
 		lblHeader.setFont(new Font("Tahoma", Font.BOLD, 20));
@@ -54,10 +57,9 @@ public class PlayerDetails extends JFrame {
 		contentPane.add(txtSearchID);
 
 		JButton btnSearch = new JButton("Search");
-		btnSearch.setBounds(329, 70, 100, 35);
+		btnSearch.setBounds(320, 70, 100, 35);
 		contentPane.add(btnSearch);
 
-		// SIMPLE DISPLAY LABEL
 		lblDisplay = new JLabel("");
 		lblDisplay.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblDisplay.setVerticalAlignment(SwingConstants.TOP);
@@ -69,26 +71,39 @@ public class PlayerDetails extends JFrame {
 		btnBack.setBounds(150, 400, 180, 40);
 		contentPane.add(btnBack);
 
+		// Search logic updated to match exact report formatting
 		btnSearch.addActionListener(e -> {
 			try {
 				String input = txtSearchID.getText().trim();
-				if(input.isEmpty()) return;
+				if (input.isEmpty()) return;
 				
 				int id = Integer.parseInt(input);
 				Competitor c = Manager.getCompetitorById(id);
 				
 				if (c != null) {
-					// Use HTML to handle the newlines from your getFullDetails/getShortDetails methods
+					// Format details to match the example report requirements
 					String full = c.getFullDetails().replace("\n", "<br>");
 					String summary = c.getShortDetails().replace("\n", "<br>");
 					
-					lblDisplay.setText("<html>" + full + "<br><br>" + summary + "</html>");
+					StringBuilder sb = new StringBuilder("<html><div style='padding:10px;'>");
+					
+					// Full Details Header and Content
+					sb.append("Full Details for CompetitorID ").append(id).append(":<br>");
+					sb.append(full).append("<br><br>");
+					
+					// Short Details Header and Content
+					sb.append("Short Details for CompetitorID ").append(id).append(":<br>");
+					sb.append(summary);
+					
+					sb.append("</div></html>");
+					
+					lblDisplay.setText(sb.toString());
 				} else {
 					lblDisplay.setText("");
 					JOptionPane.showMessageDialog(this, "Player not found.");
 				}
 			} catch (NumberFormatException ex) {
-				JOptionPane.showMessageDialog(this, "Enter a valid ID.");
+				JOptionPane.showMessageDialog(this, "Please enter a numeric ID.");
 			}
 		});
 

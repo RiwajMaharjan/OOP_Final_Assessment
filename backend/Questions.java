@@ -1,5 +1,9 @@
 package backend;
 
+/**
+ * This class represents a single quiz question.
+ * Used by the Quiz engine to display data to the player.
+ */
 public class Questions {
     private int id;
     private String questionText;
@@ -18,7 +22,20 @@ public class Questions {
         this.level = level;
     }
 
-    public String getQuestionText() { return questionText; }
-    public String[] getOptions() { return options; }
-    public String getCorrectAnswer() { return correctAnswer; }
+    // Standard getters used by the Quiz engine
+    public String getQuestionText() { 
+        return questionText; 
+    }
+
+    public String[] getOptions() { 
+        return options; 
+    }
+
+    public String getCorrectAnswer() { 
+        return correctAnswer; 
+    }
+    
+    public String getLevel() {
+        return level;
+    }
 }

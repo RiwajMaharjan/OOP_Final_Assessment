@@ -45,7 +45,6 @@ public class Quiz extends JFrame {
 		});
 	}
 
-	// Default constructor for WindowBuilder Design view
 	public Quiz() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 600); 
@@ -68,7 +67,6 @@ public class Quiz extends JFrame {
 		lblQuestion.setBounds(50, 80, 700, 40);
 		contentPane.add(lblQuestion);
 
-		// Individual radio buttons for easier manual editing in WindowBuilder
 		rbOption1 = new JRadioButton("Option 1");
 		rbOption1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		rbOption1.setBounds(70, 150, 297, 30);
@@ -102,7 +100,6 @@ public class Quiz extends JFrame {
 		setLocationRelativeTo(null);
 	}
 
-	// Overloaded constructor called by the application
 	public Quiz(String fName, String lName, int age, String level, int id) {
 		this(); 
 		this.fName = fName;
@@ -110,7 +107,6 @@ public class Quiz extends JFrame {
 		this.playerAge = age;
 		this.playerId = id;
 
-		// Corrects DB mismatch: converts "Advanced" to "Advance"
 		if (level != null && level.equalsIgnoreCase("Advanced")) {
 			this.playerLevel = "Advance";
 		} else {
@@ -127,7 +123,6 @@ public class Quiz extends JFrame {
 	}
 
 	private void displayCurrentQuestion() {
-		// Maps current round and sub-question to the 0-24 list index
 		int overallIndex = (currentRound * 5) + currentQuestionInRound;
 		
 		if (allQuizQuestions != null && overallIndex < allQuizQuestions.size()) {
@@ -161,18 +156,15 @@ public class Quiz extends JFrame {
 		else if (rbOption3.isSelected()) selectedText = rbOption3.getText();
 		else if (rbOption4.isSelected()) selectedText = rbOption4.getText();
 
-		// Check correct answer and increment round score
 		if (selectedText.equals(q.getCorrectAnswer())) {
 			roundAccumulator++; 
 		}
 
 		currentQuestionInRound++;
 
-		// Navigate through 5 questions per round
 		if (currentQuestionInRound < 5) {
 			displayCurrentQuestion();
 		} else {
-			// Save round score and handle round progression
 			sessionScores[currentRound] = roundAccumulator;
 			JOptionPane.showMessageDialog(this, "Round " + (currentRound + 1) + " Complete!\nScore: " + roundAccumulator + "/5");
 			
@@ -189,12 +181,15 @@ public class Quiz extends JFrame {
 	}
 
 	private void processFinalResults() {
-		// Save final data to database and close quiz
-		Manager.saveOrUpdateCompetitor(fName, lName, playerAge, playerLevel, sessionScores);
+		// Logic: Save data and capture if it's a new registration or an update
+		boolean isNew = Manager.saveOrUpdateCompetitor(fName, lName, playerAge, playerLevel, sessionScores);
+		
 		int grandTotal = 0;
 		for(int s : sessionScores) grandTotal += s;
 		
-		JOptionPane.showMessageDialog(this, "Quiz Complete!\nTotal Correct: " + grandTotal + " / 25");
+		String message = isNew ? "New player registered successfully!" : "Welcome back! Your scores have been updated.";
+		
+		JOptionPane.showMessageDialog(this, "Quiz Complete!\n" + message + "\nTotal Correct: " + grandTotal + " / 25");
 		this.dispose();
 		new Dashboard().setVisible(true);
 	}
